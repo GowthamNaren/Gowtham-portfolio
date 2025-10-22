@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gowtham P N</title>
+    <meta name="description" content="Interactive, recruiter-friendly resume for Gowtham PN — IT Undergraduate skilled in DSA, OOD, full-stack development, and scalable systems." />
+    <meta property="og:title" content="Gowtham PN — Interactive Resume" />
+    <meta property="og:description" content="Projects, skills, timeline, and leadership impact — designed for fast scanning and deep dives." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#1f2937" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+    <style>
+        :root{
+            --bg:#f7f7fb;
+            --ink:#0f172a;
+            --muted:#475569;
+            --panel:#ffffff;
+            --primary:#1f2937;
+            --accent:#6366f1;
+            --accent-weak:#eef2ff;
+            --line:#e5e7eb;
+            --ring:rgba(99,102,241,.5);
+        }
+        @media (prefers-color-scheme: dark){
+            :root{
+                --bg:#0b0c0f;
+                --ink:#e5e7eb;
+                --muted:#94a3b8;
+                --panel:#0f172a;
+                --primary:#0e1117;
+                --accent:#8da2fb;
+                --accent-weak:#1f2545;
+                --line:#1f2937;
+                --ring:rgba(141,162,251,.6);
+            }
+        }
+        html,body{height:100%}
+        body{
+            font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji';
+            background:var(--bg); color:var(--ink); line-height:1.65;
+        }
+        .bg-primary{background:var(--primary)}
+        .text-accent{color:var(--accent)}
+        .bg-hero-gradient{background:linear-gradient(135deg,var(--primary) 0%,#374151 100%)}
+
+        .focus-ring:focus{outline:3px solid var(--ring); outline-offset:3px; border-radius:.75rem}
+        .nav-link::after{content:'';display:block;width:0;height:3px;background:var(--accent);transition:width .2s;margin-top:2px}
+        .nav-link:hover::after{width:100%}
+
+        .hero { position:relative; overflow:hidden; }
+        .hero .overlay { position:absolute; inset:0; background: radial-gradient(1200px 400px at 50% -50px, rgba(99,102,241,.18), transparent 60%); pointer-events:none; }
+
+        /* Styles for the new 2D Skill Tags */
+        .skill-tag{
+            transition:transform .15s ease, box-shadow .2s ease; 
+            box-shadow:0 1px 3px rgba(0,0,0,.06); 
+            border:1px solid var(--line); 
+            font-weight:600;
+            background:var(--panel);
+            color:var(--ink);
+        }
+        .skill-tag:hover{
+            transform:translateY(-1px); 
+            box-shadow:0 6px 16px rgba(99,102,241,.18);
+        }
+        .skill-tag[aria-pressed="true"]{
+            background:var(--accent)!important; 
+            color:#f8fafc!important; 
+            transform:translateY(-1px); 
+            box-shadow:0 8px 20px rgba(99,102,241,.28); 
+            border-color:transparent;
+        }
+
+        .card{background:var(--panel); border:1px solid var(--line); border-radius:1rem; box-shadow:0 6px 20px rgba(0,0,0,.06)}
+        .card:hover{ box-shadow:0 10px 26px rgba(0,0,0,.08) }
+        .project-card.filtered-out{transform:scale(.98); opacity:.3; pointer-events:none}
+
+        .timeline::before{content:''; position:absolute; left:0.85rem; top:0; bottom:0; width:2px; background:var(--line); }
+        .t-dot{ width:.9rem; height:.9rem; border-radius:999px; background:var(--accent); outline:4px solid var(--panel); position:absolute; left:0; transform:translateX(-50%); }
+
+        .ghost-btn { border:1px solid rgba(99,102,241,.35); padding:.55rem .9rem; border-radius:.75rem; font-weight:600; background:transparent; color:var(--ink) }
+        .ghost-btn:hover { background: rgba(99,102,241,.08) }
+
+        #skills-container {
+            position: relative; 
+            overflow: hidden; 
+        }
+        #skillsWebGL {
+            position: absolute;
+            inset: 0;
+            z-index: 0; 
+            opacity: 0.6; 
+        }
+
+        @media print{
+            header, .no-print, canvas{display:none!important}
+            body{background:#fff; color:#111}
+            .card{box-shadow:none!important; border:1px solid #bbb}
+            a[href]:after{content:" (" attr(href) ")"; font-size:.85em}
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <a href="#main" class="sr-only focus:not-sr-only focus-ring px-3 py-2 bg-white text-black rounded-md m-3 inline-block">Skip to content</a>
+
+    <!-- Header -->
+    <header class="bg-primary text-white/90 sticky top-0 z-50 shadow-xl">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center relative" aria-label="Primary">
+            <a href="#hero" class="text-2xl font-black tracking-wider text-white">Gowtham PN</a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#skills" class="nav-link text-white/80 hover:text-white">Skills</a>
+                <a href="#projects" class="nav-link text-white/80 hover:text-white">Projects</a>
+                <a href="#timeline" class="nav-link text-white/80 hover:text-white">Timeline</a>
+                <a href="#leadership" class="nav-link text-white/80 hover:text-white">Impact</a>
+            </div>
+            <button id="printBtn" class="no-print hidden md:inline-flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg border border-white/30 hover:bg-white/10 focus-ring" aria-label="Download/Print PDF">Print</button>
+        </nav>
+    </header>
+
+    <main id="main" class="container mx-auto px-6 py-12">
+        <!-- Hero -->
+        <section id="hero" class="hero bg-hero-gradient relative text-white pt-16 pb-12 mb-20 rounded-xl shadow-2xl text-center">
+            <canvas id="heroWebGL" class="absolute inset-0 w-full h-full pointer-events-none rounded-xl opacity-85" aria-hidden="true"></canvas>
+            <div class="overlay"></div>
+            <div class="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 items-center gap-8 px-8">
+                <div class="order-3 md:order-1 text-center md:text-left space-y-2">
+                    <p class="text-sm text-white/80">Connect</p>
+                    <a href="mailto:gowthamnaren2017@gmail.com" class="block font-medium hover:text-accent transition">gowthamnaren2017@gmail.com</a>
+                    <a href="https://linkedin.com/in/gowtham-naren-417664257" class="block font-medium hover:text-accent transition" rel="noopener" target="_blank" >LinkedIn Profile</a>
+                    <a href="https://github.com/GowthamNaren" class="block font-medium hover:text-accent transition" rel="noopener" target="_blank">GitHub: GowthamNaren</a>
+                </div>
+                <div class="order-1 md:order-2 col-span-1 text-center">
+                    <img
+                        src="Gowtham-offl-1x1.png"
+                        alt="Gowtham PN profile photo"
+                        class="w-40 h-40 object-cover rounded-full border-4 border-white/25 mx-auto mb-6"
+                        loading="lazy"
+                        decoding="async"
+                        data-image-url="uploaded:Gowtham.png-358638ce-b3c4-4691-84ea-b439ba3b2434"
+                    />
+                    <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-2 tracking-tight">Gowtham PN<span class="text-accent">.dev</span></h1>
+                    <p class="text-lg text-white/90 max-w-xl mx-auto">IT Undergraduate • DSA/OOD • Full-stack & scalable systems.</p>
+                </div>
+                <div class="order-2 md:order-3 mt-6 md:mt-0 text-center md:text-right">
+                    <a href="#skills" class="bg-[var(--accent)] w-full md:w-auto text-white font-bold py-3 px-8 rounded-full shadow-lg hover:brightness-110 transition inline-block mb-3 focus-ring">Explore Skills ↓</a>
+                    <a href="mailto:gowthamnaren2017@gmail.com" class="border border-white/30 w-full md:w-auto text-white font-bold py-3 px-8 rounded-full hover:bg-white/10 transition inline-block focus-ring">Get in Touch</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="mb-24 -mt-8" aria-labelledby="skills-h">
+            <h2 id="skills-h" class="text-4xl font-extrabold text-center mb-4">Technical Skills</h2>
+            <p class="text-center text-[var(--muted)] mb-10 max-w-3xl mx-auto">Click any tag to filter the projects below and see where I applied that specific expertise in a professional context.</p>
+            <div id="skills-container" class="card p-6 md:p-8 flex flex-wrap justify-center gap-3 relative" role="listbox" aria-label="Skill filters">
+                <canvas id="skillsWebGL" class="absolute inset-0 w-full h-full pointer-events-none rounded-xl"></canvas>
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section id="projects" class="mb-24" aria-labelledby="projects-h">
+            <h2 id="projects-h" class="text-4xl font-extrabold text-center mb-4">Software Development Projects</h2>
+            <p class="text-center text-[var(--muted)] mb-10 max-w-3xl mx-auto">Each project highlights an outcome metric for quick value assessment.</p>
+            <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+
+        <!-- Timeline -->
+        <section id="timeline" class="mb-24" aria-labelledby="timeline-h">
+            <h2 id="timeline-h" class="text-4xl font-extrabold text-center mb-4">Career & Education Timeline</h2>
+            <p class="text-center text-[var(--muted)] mb-10 max-w-3xl mx-auto">A concise chronology of learning and early professional experience.</p>
+            <div class="max-w-3xl mx-auto">
+                <div id="timeline-container" class="relative timeline pl-8 space-y-14"></div>
+            </div>
+        </section>
+
+        <!-- Leadership -->
+        <section id="leadership" class="mb-24" aria-labelledby="leadership-h">
+            <h2 id="leadership-h" class="text-4xl font-extrabold text-center mb-4">Leadership & Community Impact</h2>
+            <p class="text-center text-[var(--muted)] mb-10 max-w-3xl mx-auto">Grant wins, outreach, and entrepreneurial recognition.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="card p-8">
+                    <div class="text-6xl font-black text-accent mb-2">$7,007</div>
+                    <h3 class="text-xl font-semibold mb-2">IEEE SIGHT Fund Recipient</h3>
+                    <p class="text-[var(--muted)]">Secured a competitive grant — proposal writing & project management.</p>
+                </div>
+                <div class="card p-8">
+                    <div class="text-6xl font-black text-accent mb-2">800+</div>
+                    <h3 class="text-xl font-semibold mb-2">Beneficiaries Impacted</h3>
+                    <p class="text-[var(--muted)]">Directed digital outreach for Seyal Foundation programs.</p>
+                </div>
+                <div class="card p-8">
+                    <div class="text-6xl font-black text-accent mb-2">AIC</div>
+                    <h3 class="text-xl font-semibold mb-2">Pitch Perfect Winner</h3>
+                    <p class="text-[var(--muted)]">Recognized for sharp critical thinking & entrepreneurial problem-solving.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-primary text-white mt-12">
+        <div class="container mx-auto px-6 py-8 text-center text-white/80">
+            <p class="font-medium">Gowtham PN | Full-Stack Development Enthusiast</p>
+            <p class="text-sm mt-1">&copy; 2025 GowthamNaren Portfolio. </p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Data ---
+        const skillsData = [
+            { name: 'Python', category: 'Core Programming' },
+            { name: 'Java', category: 'Core Programming' },
+            { name: 'C++', category: 'Core Programming' },
+            { name: 'JavaScript', category: 'Web & Database' },
+            { name: 'ReactJs', category: 'Web & Database' },
+            { name: 'HTML', category: 'Web & Database' },
+            { name: 'CSS', category: 'Web & Database' },
+            { name: 'SQL', category: 'Core Programming' },
+            { name: 'MySQL', category: 'Web & Database' },
+            { name: 'MongoDB', category: 'Web & Database' },
+            { name: 'DSA', category: 'Algorithms' },
+            { name: 'Git', category: 'Development Tools' },
+        ];
+
+        const projectsData = [
+            {
+                title: 'AI Based Prior Authorization',
+                description: 'AI-driven platform (Python/LangChain) automating regulatory workflows with secure data integration and efficient architecture.',
+                skills: ['Python','HTML','CSS','JavaScript'],
+                metricLabel: 'Processing Time',
+                metricValue: -30,
+                chartId: 'projectChart1'
+            },
+            {
+                title: 'Elevate — Student Dropout Monitor',
+                description: 'Predictive React dashboard (82% accuracy) integrating academic & engagement data pipelines.',
+                skills: ['ReactJs','HTML','CSS','DSA'],
+                metricLabel: 'Dropout Reduction',
+                metricValue: -20,
+                chartId: 'projectChart2'
+            },
+            {
+                title: 'Personalized Chatbot',
+                description: 'Engagement-focused chatbot (Python + MySQL). Backend logic & DB integration tuned for scalability.',
+                skills: ['Python','MySQL','SQL'],
+                metricLabel: 'User Engagement',
+                metricValue: 25,
+                chartId: 'projectChart3'
+            },
+            {
+                title: 'Internship API Development',
+                description: 'RESTful API integrations and responsive frontend (JavaScript/React) at Vulture Lines Software.',
+                skills: ['JavaScript','ReactJs'],
+                metricLabel: 'Performance Gain',
+                metricValue: 15,
+                chartId: 'projectChart4'
+            },
+        ];
+
+        const timelineData = [
+            { date: '2022 – Present', title: 'B.Tech in Information Technology', institution: 'Sri Sai Ram Engineering College', details: 'GPA 8.47/10. Coursework: DSA, DBMS, OOP, Software Engineering, Computer Networks.' },
+            { date: 'Ongoing', title: 'Project Director (NGO)', institution: 'Seyal Foundation', details: 'Led initiatives impacting 800+ beneficiaries; owned digital outreach & project ops.' },
+            { date: 'Internship — 1 Month', title: 'Software Development Intern', institution: 'Vulture Lines Software Pvt Ltd', details: 'Optimized REST APIs and contributed to responsive frontend components.' },
+        ];
+
+        // --- DOM helpers ---
+        const projectsContainer = document.getElementById('projects-container');
+        const timelineContainer = document.getElementById('timeline-container');
+        const skillsContainer = document.getElementById('skills-container');
+
+        // Profile image loader 
+        (function initProfileImage(){
+            const img = document.querySelector('Gowtham-offl-1x1.png');
+            const uploaded = img?.dataset?.imageUrl;
+            if (uploaded && uploaded.startsWith('uploaded:')) {
+                img.src = uploaded;
+                img.onerror = () => { img.src = 'https://placehold.co/160x160/1f2937/6366f1?text=Gow'; };
+            }
+        })();
+
+        document.getElementById('printBtn')?.addEventListener('click', () => window.print());
+
+        function makeChart(ctx, before, after, label, isNegative){
+            const max = Math.max(before, after, 100) * 1.3;
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Initial', 'Result'],
+                    datasets: [{
+                        label,
+                        data: [before, after],
+                        backgroundColor: ['#e5e7eb', isNegative ? 'rgba(239,68,68,.9)' : 'rgba(16,185,129,.9)'],
+                        borderColor: ['#d1d5db', isNegative ? '#ef4444' : '#10b981'],
+                        borderWidth: 1.5,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display:false }, tooltip: { enabled:false } },
+                    scales: { x: { beginAtZero:true, max, display:false }, y: { grid: { display:false }, ticks: { font: { weight:'bold', size:14 } } } }
+                }
+            });
+        }
+
+        const fragProjects = document.createDocumentFragment();
+        projectsData.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'project-card card p-6';
+            card.dataset.skills = JSON.stringify(p.skills);
+
+            const isNeg = p.metricValue < 0;
+            const metricText = isNeg ? `${Math.abs(p.metricValue)}% Reduction` : `${p.metricValue}% Increase`;
+            const before = 100; const after = Math.max(0, 100 + p.metricValue);
+
+            const chartId = p.chartId;
+            card.innerHTML = `
+                <h3 class="text-2xl font-bold mb-2">${p.title}</h3>
+                <p class="text-[var(--muted)] mb-4">${p.description}</p>
+                <div class="mb-4 pt-2">
+                    <p class="font-bold text-sm mb-1 text-[var(--ink)]">${p.metricLabel}: <span class="text-xl font-extrabold ${isNeg ? 'text-red-500' : 'text-emerald-600'}">${metricText}</span></p>
+                    <div class="relative w-full h-[100px] mt-2"><canvas id="${chartId}" aria-label="${p.metricLabel} chart for ${p.title}" role="img"></canvas></div>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-4 border-t" style="border-color:var(--line)">
+                    ${p.skills.map(s => `<span class="bg-[var(--accent-weak)] text-indigo-800 dark:text-indigo-200 text-xs font-semibold px-3 py-1 rounded-full">${s}</span>`).join('')}
+                </div>`;
+            fragProjects.appendChild(card);
+            requestAnimationFrame(() => {
+                const ctx = document.getElementById(chartId).getContext('2d');
+                makeChart(ctx, before, after, p.metricLabel, isNeg);
+            });
+        });
+        projectsContainer.appendChild(fragProjects);
+
+        const fragTimeline = document.createDocumentFragment();
+        timelineData.forEach(item => {
+            const wrap = document.createElement('div');
+            wrap.className = 'relative pl-8';
+            wrap.innerHTML = `
+                <span class="t-dot" style="top:.35rem"></span>
+                <p class="text-sm font-semibold text-accent uppercase">${item.date}</p>
+                <h3 class="text-2xl font-bold mt-1">${item.title}</h3>
+                <p class="text-lg font-medium text-[var(--ink)]/90">${item.institution}</p>
+                <p class="mt-2 text-[var(--muted)]">${item.details}</p>`;
+            fragTimeline.appendChild(wrap);
+        });
+        timelineContainer.appendChild(fragTimeline);
+
+        let activeSkill = null;
+
+        const fragSkills = document.createDocumentFragment();
+        skillsData.forEach(({name}) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'skill-tag py-2.5 px-5 rounded-full shadow-md cursor-pointer text-sm focus-ring z-20';
+            b.textContent = name;
+            b.dataset.skill = name;
+            b.setAttribute('aria-pressed','false');
+            b.setAttribute('aria-label', `Filter by ${name}`);
+            fragSkills.appendChild(b);
+        });
+        skillsContainer.appendChild(fragSkills);
+
+        function filterProjects(){
+            document.querySelectorAll('.project-card').forEach(card => {
+                const list = JSON.parse(card.dataset.skills);
+                if(activeSkill === null || list.includes(activeSkill)) card.classList.remove('filtered-out');
+                else card.classList.add('filtered-out');
+            });
+        }
+
+        skillsContainer.addEventListener('click', e => {
+            const b = e.target.closest('button[aria-pressed]');
+            if(!b) return;
+            const sk = b.dataset.skill;
+            const was = b.getAttribute('aria-pressed') === 'true';
+
+        
+            skillsContainer.querySelectorAll('button[aria-pressed]').forEach(x => x.setAttribute('aria-pressed','false'));
+
+            if(!was){
+            
+                b.setAttribute('aria-pressed','true');
+                activeSkill = sk;
+            } else {
+
+                activeSkill = null;
+            }
+
+            filterProjects();
+        });
+
+        (function heroWebGL(){
+            const canvas = document.getElementById('heroWebGL');
+            if(!canvas || !window.THREE) return;
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, 2, 0.1, 100);
+            camera.position.set(0, 0, 8);
+
+            const knot = new THREE.Mesh(
+                new THREE.TorusKnotGeometry(1.1, 0.34, 220, 28),
+                new THREE.MeshPhysicalMaterial({ color: 0x6366f1, metalness: 0.95, roughness: 0.25, clearcoat: 0.9, clearcoatRoughness: 0.2 })
+            );
+            scene.add(knot);
+
+            const count = 500; const pos = new Float32Array(count*3);
+            for(let i=0;i<count;i++){ const r=THREE.MathUtils.randFloat(2.5,10), a=Math.random()*Math.PI*2, b=Math.random()*Math.PI*2;
+                pos[i*3]=Math.cos(a)*r; pos[i*3+1]=Math.sin(b)*r*0.5; pos[i*3+2]=Math.sin(a)*r; }
+            const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+            const p = new THREE.Points(g, new THREE.PointsMaterial({ size: 0.02, color: 0xffffff, opacity: 0.35, transparent: true })); scene.add(p);
+
+            scene.add(new THREE.DirectionalLight(0xffffff, 1.2).position.set(5,5,6));
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+            let w=0, h=0; function resize(){ const r = canvas.getBoundingClientRect(); if(r.width!==w || r.height!==h){ w=r.width; h=r.height; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); } }
+            const mouse = new THREE.Vector2(0,0);
+            canvas.addEventListener('pointermove', e=>{ const r=canvas.getBoundingClientRect(); mouse.x=((e.clientX-r.left)/r.width-.5)*2; mouse.y=((e.clientY-r.top)/r.height-.5)*2; });
+
+            let raf; function render(){ resize(); if(!prefersReduced){ knot.rotation.x+=0.003; knot.rotation.y+=0.004; knot.position.x = mouse.x*.25; knot.position.y = -mouse.y*.15; p.rotation.y+=0.0008; p.rotation.x+=0.0003; } renderer.render(scene,camera); raf=requestAnimationFrame(render); }
+            document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ cancelAnimationFrame(raf);} else { raf=requestAnimationFrame(render);} });
+            raf=requestAnimationFrame(render);
+        })();
+
+        (function skillsWebGL(){
+            const canvas = document.getElementById('skillsWebGL');
+            if(!canvas || !window.THREE) return;
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, 2, 0.1, 100);
+            camera.position.z = 2.5;
+
+            const particleCount = 40;
+            const positions = [];
+            for (let i = 0; i < particleCount; i++) {
+                const x = (Math.random() - 0.5) * 4;
+                const y = (Math.random() - 0.5) * 2;
+                const z = (Math.random() - 0.5) * 3;
+                positions.push(x, y, z);
+            }
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            
+            const material = new THREE.PointsMaterial({ 
+                color: 0xffffff, 
+                size: 0.04, 
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x6366f1, 
+                transparent: true,
+                opacity: 0.25 
+            });
+            const lineSegments = [];
+
+            const maxDistance = 1.0; 
+            const positionVector = [];
+            for(let i=0; i<particleCount; i++){
+                positionVector.push(new THREE.Vector3(positions[i*3], positions[i*3+1], positions[i*3+2]));
+            }
+
+            function updateLines() {
+                lines.children.forEach(c => lines.remove(c));
+                lineSegments.length = 0;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const start = positionVector[i];
+                    for (let j = i + 1; j < particleCount; j++) {
+                        const end = positionVector[j];
+                        
+                        if (start.distanceTo(end) < maxDistance) {
+                            lineSegments.push(start.x, start.y, start.z);
+                            lineSegments.push(end.x, end.y, end.z);
+                        }
+                    }
+                }
+                
+                const linesGeo = new THREE.BufferGeometry();
+                linesGeo.setAttribute('position', new THREE.Float32BufferAttribute(lineSegments, 3));
+                
+                const linesMesh = new THREE.LineSegments(linesGeo, lineMaterial);
+                lines.add(linesMesh);
+            }
+
+            const lines = new THREE.Group();
+            scene.add(lines);
+            updateLines(); 
+
+            let w=0, h=0; function resize(){ const r = canvas.getBoundingClientRect(); if(r.width!==w || r.height!==h){ w=r.width; h=r.height; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); } }
+
+            let raf; function render(){ 
+                resize(); 
+                if(!prefersReduced){ 
+                    particles.rotation.y += 0.0008; 
+                    lines.rotation.y -= 0.001;
+                }
+                renderer.render(scene, camera); 
+                raf=requestAnimationFrame(render); 
+            }
+            document.addEventListener('visibilitychange', ()=>{ if(document.hidden){ cancelAnimationFrame(raf);} else { raf=requestAnimationFrame(render);} });
+            raf=requestAnimationFrame(render);
+        })();
+    </script>
+</body>
+</html>
